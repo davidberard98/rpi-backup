@@ -23,7 +23,7 @@ char is_mounted(char* input, int length)
 {
   char tcheck[] = "usb-Garmin_FR10_Flash-0:0";
   char * currentdisk;
-  currentdisk = malloc(100*sizeof(char));
+  currentdisk = (char*)malloc(200*sizeof(char));
   int i;
   int currentloc = 0;
   for(i=0;i<length;++i)
@@ -61,7 +61,7 @@ int read_devices(char ** fresults)
   system("ls -1 /dev/disk/by-id/ > lsres.txt");
   char fname[] = "lsres.txt";
   *fresults = NULL;
-  *fresults = malloc(100);
+  *fresults = (char*) malloc(10000*sizeof(char));
   FILE *fobj;
   int cloc = 0;
   fobj = fopen(fname, "r");
@@ -89,6 +89,7 @@ int main()
     free(fresults);
     if(tval != currentval)
     {
+      printf("======tv!=cv\n");
       currentval = tval;
       if(tval == 1)
         printf("Garmin connected!\n");
