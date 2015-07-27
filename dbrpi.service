@@ -3,7 +3,8 @@ Description=Back up Garmin activities from flash corruption
 
 [Service]
 User=root
-ExecStart=/root/
+WorkingDirectory=/root/rpi-backup/
+ExecStart=/root/rpi-backup/checkmount
 Restart=always
 
 [Install]

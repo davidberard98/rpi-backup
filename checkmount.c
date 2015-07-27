@@ -97,16 +97,19 @@ void mountcopywow(int number)
   loc[9] = '\0';
   strcpy(mkdircmd+6, loc);
   system(mkdircmd);
+  printf("  %s\n", mkdircmd);
   char mtcmd[] = "mount /dev/disk/by-id/usb-Garmin_FR10_Flash-0\\:0 mloc";
   system(mtcmd);
+  printf("  %s\n", mtcmd);
   char *cpcmd = (char *) malloc(60);
   char cpbegin[] = "cp -R mloc/* ";
   strcpy(cpcmd, cpbegin);
   strcpy(cpcmd+13, loc);
   system(cpcmd);
+  printf("  %s\n", cpcmd);
   char umtcmd[] = "umount mloc";
-  printf("%s  %s  %s  %s\n", mkdircmd, mtcmd, cpcmd, umtcmd);
   system(umtcmd);
+  printf("  %s\n", umtcmd);
 
   free(cpcmd);
   free(mkdircmd);
@@ -140,10 +143,33 @@ int main()
   wiringPiSetup();
   pinMode(tpin, OUTPUT);
 
+  const int popin = 0;
+  wiringPiSetup();
+  pinMode(popin, INPUT);
+  pullUpDnControl(popin, PUD_UP);
+
+  delay(1500);
+  digitalWrite(tpin, HIGH);
+  delay(1500);
+  int j;
+  for(j=0;j<20;++j)
+  {
+    delay(40);
+    digitalWrite(tpin, HIGH);
+    delay(40);
+    digitalWrite(tpin, LOW);
+  }
+
   char currentval = -1;
+  char blinker = 0;
+  int counter = 0;
 
   while(1)
   {
+    if(!digitalRead(popin))
+      system("poweroff");
+    if(blinker)
+      digitalWrite(tpin, counter%2);
     char * fresults;
     int cloc = read_devices(&fresults);
     char tval = is_mounted(fresults, cloc);
@@ -157,10 +183,15 @@ int main()
         digitalWrite(tpin, HIGH);
 	int backupnumber = findBN(1);
         mountcopywow(backupnumber);
+	blinker = 1;
       }
       else
+      {
         digitalWrite(tpin, LOW);
+	blinker = 0;
+      }
     }
+    ++counter;
     delay(500);
   }
 

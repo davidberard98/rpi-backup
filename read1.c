@@ -4,7 +4,7 @@
 
 int main()
 {
-  const int tpin = 7;
+  const int tpin = 0;
   wiringPiSetup();
   pinMode(tpin, INPUT);
   pullUpDnControl(tpin, PUD_UP);
@@ -24,7 +24,7 @@ int main()
       printf("It's off!\n");
       last = 0;
     }
-    delay(15);
+    delay(100);
   }
 
 
