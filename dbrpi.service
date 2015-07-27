@@ -1,0 +1,12 @@
+[Unit]
+Description=Back up Garmin activities from flash corruption
+
+[Service]
+User=root
+ExecStart=/root/
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+# Back up garmin activities

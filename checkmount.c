@@ -58,6 +58,7 @@ char is_mounted(char* input, int length)
 
 int read_devices(char ** fresults)
 {
+
   system("ls -1 /dev/disk/by-id/ > lsres.txt");
   char fname[] = "lsres.txt";
   *fresults = NULL;
@@ -77,8 +78,68 @@ int read_devices(char ** fresults)
   return cloc;
 }
 
+void mountcopywow(int number)
+{
+  char *mkdircmd;
+  mkdircmd = (char*)malloc(16*sizeof(char));
+  char loc[10];
+  char lbegin[] = "mkdir ";
+  strcpy(mkdircmd, lbegin);
+  loc[0] = 'd';
+  loc[1] = 'a';
+  loc[2] = 't';
+  loc[3] = 'a';
+  loc[4] = '/';
+  loc[5] = 'b';
+  loc[6] = (number/100)%10 + 48;
+  loc[7] = (number/10)%10 + 48;
+  loc[8] = (number%10) + 48;
+  loc[9] = '\0';
+  strcpy(mkdircmd+6, loc);
+  system(mkdircmd);
+  char mtcmd[] = "mount /dev/disk/by-id/usb-Garmin_FR10_Flash-0\\:0 mloc";
+  system(mtcmd);
+  char *cpcmd = (char *) malloc(60);
+  char cpbegin[] = "cp -R mloc/* ";
+  strcpy(cpcmd, cpbegin);
+  strcpy(cpcmd+13, loc);
+  system(cpcmd);
+  char umtcmd[] = "umount mloc";
+  printf("%s  %s  %s  %s\n", mkdircmd, mtcmd, cpcmd, umtcmd);
+  system(umtcmd);
+
+  free(cpcmd);
+  free(mkdircmd);
+}
+
+int findBN(char incr)
+{
+  char fname[] = "data/counter.txt";
+  FILE *fobj = fopen(fname, "r");
+  
+  char c;
+  int output = 0;
+  while((c=fgetc(fobj)) != EOF && c >=48 && c <= 57)
+  {
+    output *= 10;
+    output += c -48;
+  }
+  fclose(fobj);
+  if(incr)
+  {
+    fobj = fopen(fname, "w");
+    fprintf(fobj, "%d", output+1);
+    fclose(fobj);
+  }
+  return output;
+}
+
 int main()
 {
+  const int tpin = 7;
+  wiringPiSetup();
+  pinMode(tpin, OUTPUT);
+
   char currentval = -1;
 
   while(1)
@@ -92,9 +153,13 @@ int main()
       printf("======tv!=cv\n");
       currentval = tval;
       if(tval == 1)
-        printf("Garmin connected!\n");
+      {
+        digitalWrite(tpin, HIGH);
+	int backupnumber = findBN(1);
+        mountcopywow(backupnumber);
+      }
       else
-        printf("Garmin disconnected!\n");
+        digitalWrite(tpin, LOW);
     }
     delay(500);
   }
