@@ -107,12 +107,21 @@ void mountcopywow(int number)
   strcpy(cpcmd+13, loc);
   system(cpcmd);
   printf("  %s\n", cpcmd);
+  char *lscmd = (char*) malloc(60);
+  char lsa[] = "ls -l mloc/ > ";
+  char lsb[] = "/dirlist.txt";
+  strcpy(lscmd, lsa);
+  strcpy(lscmd+14, loc);
+  strcpy(lscmd+14+9, lsb);
+  system(lscmd)
+  printf("  %s\n", lscmd);
   char umtcmd[] = "umount mloc";
   system(umtcmd);
   printf("  %s\n", umtcmd);
 
   free(cpcmd);
   free(mkdircmd);
+  free(lscmd);
 }
 
 int findBN(char incr)
